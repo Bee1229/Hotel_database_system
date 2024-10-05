@@ -1,21 +1,21 @@
---1 Staffs whos salary is greater than 4000
+--1 Staff whose salary is greater than 4000
 SELECT first_name, last_name, salary
 FROM public.staff
 WHERE salary>'4000';
 
---2 Number of Staffs whos salary is lower than a 1000
+--2 Number of Staff whose salary is lower than a 1000
 SELECT COUNT(salary)
 FROM public.staff
 WHERE salary<'1000';
 
---3 joining staff with staff department 
+--3 joining staff with the staff department 
 SElECT first_name, last_name, department_name
 FROM public.staff 
 Join public.staffdepartment using (staff_id)
 join public.department using(department_id);
 
 --4 viewing the staff in hotel 1
-SElECT first_name, last_name, department_name
+SELECT first_name, last_name, department_name
 FROM public.staff 
 Join public.staffdepartment using (staff_id)
 join public.department using(department_id)
@@ -65,3 +65,63 @@ SELECT guest.first_name, guest.last_name, booking.booking_id,booking.room_number
 FROM public.guest
 FULL OUTER JOIN public.booking ON guest.guest_id=booking.guest_id
 ORDER BY guest.first_name;
+
+--12 INTERSECT retrieves the records that are identical/common between the result sets of two or more tables 
+SELECT  
+    guest_id, 
+    first_name, 
+    last_name, 
+    date_of_birth, 
+    phone, 
+    gender, 
+    nationality 
+FROM public.guest 
+INTERSECT 
+SELECT  
+    guest_id, 
+    NULL AS first_name, 
+    NULL AS last_name, 
+    NULL AS date_of_birth, 
+    NULL AS phone, 
+    NULL AS gender, 
+    NULL AS nationality 
+FROM public.feedback; 
+
+ --13 Using the CASE function  
+SELECT  
+    feedback_id, 
+    rating, 
+    CASE 
+        WHEN rating >= 4 THEN 'Positive' 
+        WHEN rating = 3 THEN 'Neutral' 
+        ELSE 'Negative' 
+    END AS feedback_category 
+FROM public.feedback; 
+
+ --14 Using the OR operator     
+select * 
+from public.feedback 
+where rating =4 OR guest_id = 4;  
+ 
+ --15 using the GROUP BY function 
+SELECT AVG(guest_count) 
+    FROM ( 
+        SELECT reservation_id, COUNT(*) AS guest_count 
+        FROM public.guests_reservation 
+        GROUP BY reservation_id)AS avg_guests;
+
+ --16 subquery inside WHERE 
+SELECT * 
+FROM reservation 
+WHERE ( 
+    SELECT COUNT(*) 
+    FROM public.guests_reservation 
+    WHERE guests_reservation.reservation_id = reservation.reservation_id 
+) > ( 
+    SELECT AVG(guest_count) 
+    FROM ( 
+        SELECT reservation_id, COUNT(*) AS guest_count 
+        FROM public.guests_reservation 
+        GROUP BY reservation_id 
+    ) AS avg_guests 
+); 
